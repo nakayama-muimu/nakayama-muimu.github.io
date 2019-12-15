@@ -9,7 +9,7 @@ var MnTimeout = window["MnTimeout"] = function(iTimeDuration, cbFunc, iCheckInte
     this.tsStarted = false;
     this.idInterval = false;
     this.cbInterval = false;
-    console.log("Constuctor called.");
+    //console.log("Constuctor called.");
 }
 
 MnTimeout.prototype = {
@@ -22,27 +22,27 @@ MnTimeout.prototype = {
         this.tsStarted = Date.now();
         var me = this;
         this.idInterval = setInterval(function(){me.checkElapsed(me)}, this.iCheckInterval);
-        console.log("start called.");
+        //console.log("start called.");
         return true;
 
     }
     ,checkElapsed: function(me){
         if(Date.now() - me.tsStarted > me.iTimeDuration){
             clearInterval(me.idInterval);
-            console.log("checkElapsed stopped.");
+            //console.log("checkElapsed stopped.");
             me.cbTimeout();
         }
         if(me.cbInterval) me.cbInterval();
-        console.log("checkElapsed called.");
+        //console.log("checkElapsed called.");
     }
     ,stop: function(){
         clearInterval(this.idInterval);
-        console.log("stop called");
+        //console.log("stop called");
 
     }
     ,renew: function(){
         this.tsStarted = Date.now();
-        console.log("renew called")
+        //console.log("renew called")
     }
 }
 
