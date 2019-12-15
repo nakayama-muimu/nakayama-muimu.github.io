@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta content="width=device-width" name="viewport" />
+        <title>MnTimeout</title> 
+        <script src="MnTimeout.js"></script>
+        <script>
+    (function(){
+        window.addEventListener("load", cbLoad);
+        var evRress;
+        var mto;
+    
+        function cbLoad(){
+            evPress = ("ontouchend" in window) ? "touchend" : "click";
+            document.getElementById("button1").addEventListener(evPress, function(){
+                mto = new MnTimeout(10 * 1000, function(){alert("Timeout!")}, 1000);
+                mto.start();
+
+            });
+            document.getElementById("button2").addEventListener(evPress, function(){
+                mto.renew();
+            });
+            document.getElementById("button3").addEventListener(evPress, function(){
+                mto.stop();
+            });
+        }
+    
+    }())
+        
+        
+        </script>
+    
+    
+    </head>
+    <body>
+       <div class="container">
+           <h3>MnTimeout Example</h3>
+           <h4>Show alert after 10 seconds</h4>
+           <button type="button" id="button1">Start</button> Start counting down.<br>
+           <button type="button" id="button2">Renew</button> Renew counting down, i.e., count again from 10.<br>
+           <button type="button" id="button3">Stop</button> Stop counting down.
+
+
+
+       </div> 
+    </body>
+</html>
