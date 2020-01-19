@@ -13,7 +13,7 @@ var MnTimeout = window["MnTimeout"] = function(iTimeDuration, cbFunc, iCheckInte
 }
 
 MnTimeout.prototype = {
-    setIntervalCallBack: function(cbFunc){
+    setIntervalCallback: function(cbFunc){
         this.cbInterval = cbFunc;
     }
     ,start: function(){
@@ -31,9 +31,10 @@ MnTimeout.prototype = {
             clearInterval(me.idInterval);
             //console.log("checkElapsed stopped.");
             me.cbTimeout();
+        }else{
+            if(me.cbInterval) me.cbInterval();
+            //console.log("checkElapsed called.");
         }
-        if(me.cbInterval) me.cbInterval();
-        //console.log("checkElapsed called.");
     }
     ,stop: function(){
         clearInterval(this.idInterval);

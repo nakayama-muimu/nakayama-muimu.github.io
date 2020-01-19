@@ -10,15 +10,26 @@
         window.addEventListener("load", cbLoad);
         var evRress;
         var mto;
+        var iCountDown = 0;
     
         function cbLoad(){
             evPress = ("ontouchend" in window) ? "touchend" : "click";
+            
             document.getElementById("button1").addEventListener(evPress, function(){
-                mto = new MnTimeout(10 * 1000, function(){alert("Timeout!")}, 1000);
+                mto = new MnTimeout(10 * 1000, function(){
+                    document.getElementById("mes").textContent = "";
+                    alert("Timeout!");
+                    iCountDown = 0;
+                }, 1000);
+                iCountDown = 10;
+                mto.setIntervalCallback(function(){
+                    document.getElementById("mes").textContent = "Going to timeout after " + (--iCountDown) + " second(s).";
+                });
                 mto.start();
 
             });
             document.getElementById("button2").addEventListener(evPress, function(){
+                iCountDown = 10;
                 mto.renew();
             });
             document.getElementById("button3").addEventListener(evPress, function(){
@@ -39,8 +50,12 @@
            <h4>Show alert after 10 seconds</h4>
            <button type="button" id="button1">Start</button> Start counting down.<br>
            <button type="button" id="button2">Renew</button> Renew counting down, i.e., count again from 10.<br>
-           <button type="button" id="button3">Stop</button> Stop counting down.
+           <button type="button" id="button3">Stop</button> Stop counting down and reset to 10.<br>
+           <br>
+           <div id="mes"></div>
 
+           <br><br>
+           <a href="https://nakayama-muimu.github.io">Go back to https://nakayama-muimu.github.io</a>
 
 
        </div> 
