@@ -9,12 +9,14 @@ var MnDialog = $hx_exports["MnDialog"] = function(width,height,id,cssPrefix) {
 	}
 	this.bDragging = false;
 	this.bTouchAvailable = false;
+	this.maxBodyHeight = 400;
 	this.id = "";
 	this.colorBase = "#eeeeff";
 	this.colorButton = "#6666ff";
 	this.colorTitleText = "#ffffff";
 	this.colorTitle = "#9999ff";
 	this.keyupEnabled = false;
+	this.btFocused = "none";
 	this.btLang = "en";
 	this.btType = "OK";
 	var _gthis = this;
@@ -136,7 +138,7 @@ MnDialog.prototype = {
 			window.document.head.removeChild(oCSS);
 		}
 		var cssPrefix = this.cssPrefix + "_";
-		var css = "\n." + cssPrefix + "bg{\n    display: none;\n    background-color: rgba(0, 0, 0, 0.2);\n    position: fixed;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n}\n." + cssPrefix + "base{\n    position: absolute;\n    left: 50%;\n    top: 50%;\n    width: " + this.width + "px;\n    min-height: " + this.height + "px;\n    transform: translate(-50%, -50%);\n    background-color: " + this.colorBase + ";\n    border: solid 2px " + this.colorTitle + ";\n    border-radius: 4px;\n    text-align: left;\n    font-size: 0.8rem;\n}\n." + cssPrefix + "title{\n    background-color: " + this.colorTitle + ";\n    color: " + this.colorTitleText + ";\n    padding: 3px;\n    cursor: pointer;\n    user-select: none;\n    -ms-user-select: none;\n    -moz-user-select: none;\n    -webkit-user-select: none;\n}\n." + cssPrefix + "body{\n    padding: 3px;\n    height: " + (this.height - 60) + "px;\n}\n." + cssPrefix + "buttons{\n    text-align: center;\n    padding: 3px;\n}\n." + cssPrefix + "button{\n    border-style: none;\n    color: " + this.colorTitleText + ";\n    background-color: " + this.colorTitle + ";\n    cursor: pointer;\n    border-radius: 4px;\n    min-width: 60px;\n    min-height: 20px;\n    margin: 4px;\n    padding-left: 4px;\n    padding-right: 4px;\n}\n." + cssPrefix + "button:hover{\n    background-color: " + this.colorButton + ";\n}";
+		var css = "\n." + cssPrefix + "bg{\n    display: none;\n    background-color: rgba(0, 0, 0, 0.2);\n    position: fixed;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n}\n." + cssPrefix + "base{\n    position: absolute;\n    left: 50%;\n    top: 50%;\n    width: " + this.width + "px;\n    min-height: " + this.height + "px;\n    transform: translate(-50%, -50%);\n    background-color: " + this.colorBase + ";\n    border: solid 2px " + this.colorTitle + ";\n    border-radius: 4px;\n    text-align: left;\n    font-size: 0.8rem;\n}\n." + cssPrefix + "title{\n    background-color: " + this.colorTitle + ";\n    color: " + this.colorTitleText + ";\n    padding: 3px;\n    cursor: pointer;\n    user-select: none;\n    -ms-user-select: none;\n    -moz-user-select: none;\n    -webkit-user-select: none;\n}\n." + cssPrefix + "body{\n    padding: 3px;\n    height: " + (this.height - 60) + "px;\n    max-height: " + this.maxBodyHeight + "px;\n    overflow-y: auto;\n}\n." + cssPrefix + "buttons{\n    text-align: center;\n    padding: 3px;\n}\n." + cssPrefix + "button{\n    border-style: none;\n    color: " + this.colorTitleText + ";\n    background-color: " + this.colorTitle + ";\n    cursor: pointer;\n    border-radius: 4px;\n    min-width: 60px;\n    min-height: 20px;\n    margin: 4px;\n    padding-left: 4px;\n    padding-right: 4px;\n}\n." + cssPrefix + "button:hover{\n    background-color: " + this.colorButton + ";\n}";
 		var style = window.document.createElement("style");
 		style.id = this.cssPrefix;
 		style.appendChild(window.document.createTextNode(css));
@@ -241,6 +243,14 @@ MnDialog.prototype = {
 		}
 	}
 	,setButtonFocus: function(btNumber) {
+		if(btNumber == null) {
+			btNumber = "";
+		}
+		if(btNumber != "") {
+			this.btFocused = btNumber;
+		} else {
+			btNumber = this.btFocused;
+		}
 		switch(btNumber) {
 		case "button1":
 			this.button1.focus();
@@ -252,6 +262,7 @@ MnDialog.prototype = {
 			this.button3.focus();
 			break;
 		default:
+			this.btFocused = "none";
 			this.button1.blur();
 			this.button2.blur();
 			this.button3.blur();
@@ -272,6 +283,7 @@ MnDialog.prototype = {
 			window.addEventListener("keyup",$bind(this,this.cbKeyup));
 		}
 		this.divBG.style.display = "block";
+		this.setButtonFocus();
 	}
 	,hide: function() {
 		this.divBG.style.display = "none";
