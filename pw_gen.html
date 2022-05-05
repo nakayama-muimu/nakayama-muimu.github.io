@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset='utf-8'>
+    <script>
+        (function () {
+            'use strict';
+            let gPwLen = 10;
+            const MAX_PW_LEN = 100;
+            const MAX_PW_NUM = 100;
+            window.addEventListener('load', () => {
+                let evPress = ('ontouchend' in window) ? 'touchend' : 'click'
+                gebi('bt_pw_gen').addEventListener(evPress, generatePassword);
+                gebi('bt_copy').addEventListener(evPress, copyToClipboard);
+                let fs = gebi('fs_custom');
+                let set1 = gebi('set1');
+                set1.addEventListener('change', () => {
+                    fs.disabled = true;
+                    if(set1.checked) generatePassword();
+                });
+                let set2 = gebi('set2');
+                set2.addEventListener('change', () => {
+                    fs.disabled = true;
+                    if(set2.checked) generatePassword();
+                });
+                let set3 = gebi('set3');
+                set3.addEventListener('change', () => {
+                    fs.disabled = true;
+                    if(set3.checked) generatePassword();
+                });
+                let set4 = gebi('set4');
+                set4.addEventListener('change', () => {
+                    fs.disabled = true;
+                    if(set4.checked) generatePassword();
+                });
+                let set_custom = gebi('set_custom');
+                set_custom.addEventListener('change', () => {
+                    fs.disabled = false;
+                    if(set_custom.checked) generatePassword();
+                });
+                gebi('chk_lc').addEventListener('change', generatePassword);
+                gebi('chk_uc').addEventListener('change', generatePassword);
+                gebi('chk_num').addEventListener('change', generatePassword);
+                gebi('chk_sym').addEventListener('change', generatePassword);
+                gebi('chk_excl').addEventListener('change', generatePassword);
+                gebi('pw_len').addEventListener('change', generatePassword);
+                gebi('pw_num').addEventListener('change', generatePassword);
+                generatePassword();
+            })
+            let generatePassword = () => {
+                let chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!#$%&()-=@;+:*[{]}/?_';
+                let lc = 'abcdefghijkmnpqrstuvwxyz'; // excl: l, o
+                let uc = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // excl: I, O
+                let num = '23456789'; // excl: 0, 1
+                let sym = '!#$%&()-=@;+:*/?_'; // excl: [.,|<>[{]}\'`~^"]
+
+                let mode = -1;
+                if (gebi('set1').checked) mode = 1;
+                if (gebi('set2').checked) mode = 2;
+                if (gebi('set3').checked) mode = 3;
+                if (gebi('set4').checked) mode = 4;
+                if (gebi('set_custom').checked) mode = 0;
+                if (mode === -1) {
+                    alert('System error: mode not selected');
+                    return;
+                }
+
+                let oLen = gebi('pw_len');
+                if(oLen.disabled){
+                    oLen.disabled = false;
+                    oLen.value = gPwLen;
+                }
+                let sLen = oLen.value;
+                let pwLen = parseInt(sLen);
+                if (isNaN(pwLen) || pwLen < 1 || pwLen > MAX_PW_LEN) {
+                    alert('System error: invalid password length');
+                    return;
+                }
+                let lcUsed = true;
+                let ucUsed = true;
+                let numUsed = true;
+                let symUsed = true;
+
+                switch (mode) {
+                    case 1:
+                        chars = lc + uc + num + sym;
+                        break;
+                    case 2:
+                        chars = lc + uc + num + '_-';
+                        sym = '_-';
+                        break
+                    case 3:
+                        chars = lc + uc + num;
+                        symUsed = false;
+                        break
+                    case 4:
+                        chars = '0123456789';
+                        gPwLen = pwLen
+                        pwLen = 6;
+                        oLen.value = 6;
+                        oLen.disabled = true;
+                        lcUsed = false;
+                        ucUsed = false;
+                        symUsed = false;
+                        break
+                    case 0:
+                        let excl = gebi('chk_excl').checked ? true : false;
+                        chars = '';
+                        if (gebi('chk_lc').checked) {
+                            lc += excl ? '' : 'lo';
+                            chars += lc;
+                        } else {
+                            lcUsed = false;
+                        }
+                        if (gebi('chk_uc').checked) {
+                            uc += excl ? '' : 'IO';
+                            chars += uc;
+                        } else {
+                            ucUsed = false;
+                        }
+                        if (gebi('chk_num').checked) {
+                            num += excl ? '' : '01';
+                            chars += num;
+                        } else {
+                            numUsed = false;
+                        }
+                        if (gebi('chk_sym').checked) {
+                            chars += sym;
+                        } else {
+                            symUsed = false;
+                        }
+                        break;
+                }
+                if (chars === '') {
+                    alert('Please select at least one character set');
+                    return;
+                }
+
+                let arPw = [];
+                let sNum = gebi('pw_num').value;
+                let pwNum = parseInt(sNum);
+                if (isNaN(pwNum) || pwNum < 1 || pwNum > MAX_PW_NUM) {
+                    alert('System error: invalid number of passwords');
+                }
+
+                for (let i = 0; i < pwNum; i++) {
+                    let iLen = chars.length;
+                    let array = new Uint32Array(MAX_PW_LEN);
+                    let s = '';
+                    let bFlag = true;
+                    let iCount = 0;
+                    while (bFlag) {
+                        iCount++;
+                        if (iCount > 1000) {
+                            alert('System error: too many iterations');
+                            break;
+                        }
+                        s = '';
+                        window.crypto.getRandomValues(array);
+                        for (let i in array) {
+                            let idx = array[i] % iLen;
+                            s += chars[idx];
+                            if (s.length === pwLen) break;
+                        }
+                        //console.log(s, bFlag, iCount);
+                        let re;
+                        switch (mode) {
+                            case 4:
+                                re = new RegExp('[0-9]');
+                                if (!re.test(s)) continue;
+                                break;
+                            default:
+                                if (lcUsed) {
+                                    re = new RegExp(`[${lc}]`);
+                                    if (!re.test(s)) continue;
+                                }
+                                if (ucUsed) {
+                                    re = new RegExp(`[${uc}]`);
+                                    if (!re.test(s)) continue;
+                                }
+                                if (numUsed) {
+                                    re = new RegExp(`[${num}]`);
+                                    if (!re.test(s)) continue;
+                                }
+                                if (symUsed) {
+                                    re = new RegExp(`[${sym}]`);
+                                    if (!re.test(s)) continue;
+                                }
+                                break;
+                        }
+                        bFlag = false;
+                    }
+                    //console.log(s, bFlag, iCount);
+                    arPw.push(s);
+                }
+                console.log(arPw);
+                gebi('pw_result').value = arPw.join('\n');
+
+            }
+
+
+
+            let copyToClipboard = () => {
+                let el = gebi('pw_result');
+                el.select();
+                document.execCommand('copy');
+                el.blur();
+            }
+
+            let gebi = function (id) { return document.getElementById(id) };
+        }())
+    </script>
+    <style>
+        *,
+        *:before,
+        *:after {
+            box-sizing: border-box;
+        }
+
+        .title_pane {
+            margin: 0 20px 0 20px;
+        }
+
+        .box_pane {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border-style: solid;
+            border-width: 1px;
+            border-color: #dddddd;
+            border-radius: 4px;
+        }
+
+        .box_pane>div {
+            clear: both;
+        }
+
+        .setting>div:nth-child(2n+1) {
+            width: 80px;
+            text-align: right;
+            margin-right: 10px;
+            float: left;
+            clear: left;
+            font-weight: bold;
+        }
+
+        .setting>div:nth-child(2n) {
+            width: 360px;
+            text-align: left;
+            margin-left: 10px;
+            float: left;
+            clear: none;
+        }
+
+        fieldset {
+            border: none;
+        }
+
+        .result span {
+            display: inline-block;
+            width: 220px;
+        }
+
+        .result textarea {
+            width: 300px;
+            height: 300px;
+            font-size: 1.5rem;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="title_pane">
+        <h3>Password Generator</h3>
+    </div>
+    <div class="box_pane">
+        <div class="setting">
+            <div>Preset:</div>
+            <div>
+                <input type="radio" id="set1" name="preset" value="set1" checked><label for="set1">
+                    alpha+ALPHA+Num+Symbol</label><br>
+                <input type="radio" id="set2" name="preset" value="set2"><label for="set2"> alpha+ALPHA+Num+[ _-
+                    ]</label><br>
+                <input type="radio" id="set3" name="preset" value="set3"><label for="set3"> alpha+ALPHA+Num</label><br>
+                <input type="radio" id="set4" name="preset" value="set4"><label for="set4"> Num: 6 digits (for
+                    passcode)</label><br>
+                <input type="radio" id="set_custom" name="preset" value="set_custom"><label for="set_custom"> Custom
+                    setting</label>
+            </div>
+            <div>Custom:</div>
+            <div>
+                <fieldset id="fs_custom" disabled>
+                    <input type="checkbox" id="chk_lc" checked><label for="chk_lc"> alpha</label>
+                    <input type="checkbox" id="chk_uc" checked><label for="chk_uc"> ALPHA</label>
+                    <input type="checkbox" id="chk_num" checked><label for="chk_num"> Num</label>
+                    <input type="checkbox" id="chk_sym" checked><label for="chk_sym"> Symbol</label><br>
+                    <input type="checkbox" id="chk_excl" checked><label for="chk_excl"> Exclude ambiguous (e.g. 1l,
+                        0O)</label>
+                </fieldset>
+            </div>
+        </div>
+        <hr>
+        <div>
+            How long? <select id="pw_len">
+                <option value="4">4</option>
+                <option value="6">6</option>
+                <option value="8">8</option>
+                <option value="10" selected>10</option>
+                <option value="12">12</option>
+                <option value="20">20</option>
+            </select>
+            How many? <select id="pw_num">
+                <option value="1" selected>1</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+        <div>&nbsp</div>
+        <div class='result'>
+            <textarea id="pw_result"></textarea>
+            <button type="button" id="bt_copy">Copy</button>
+            <button id='bt_pw_gen' type='button'>Change</button>
+        </div>
+    </div>
+</body>
+
+</html>
