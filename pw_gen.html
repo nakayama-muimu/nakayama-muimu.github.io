@@ -3,6 +3,7 @@
 
 <head>
     <meta charset='utf-8'>
+    <title>Password String Generator</title>
     <script>
         (function () {
             'use strict';
@@ -164,28 +165,28 @@
                             if (s.length === pwLen) break;
                         }
                         //console.log(s, bFlag, iCount);
-                        let re;
+                        let reLc = new RegExp(`[${lc}]`);
+                        let reUc = new RegExp(`[${uc}]`);
+                        let reNum = new RegExp(`[${num}]`);
+                        let reNum2 = new RegExp('[0-9]');
+                        let sym2 = sym.replace(/\-/g, '\\-');
+                        let reSym = new RegExp(`[${sym2}]`);
                         switch (mode) {
                             case 4:
-                                re = new RegExp('[0-9]');
-                                if (!re.test(s)) continue;
+                                if (!reNum2.test(s)) continue;
                                 break;
                             default:
                                 if (lcUsed) {
-                                    re = new RegExp(`[${lc}]`);
-                                    if (!re.test(s)) continue;
+                                    if (!reLc.test(s)) continue;
                                 }
                                 if (ucUsed) {
-                                    re = new RegExp(`[${uc}]`);
-                                    if (!re.test(s)) continue;
+                                    if (!reUc.test(s)) continue;
                                 }
                                 if (numUsed) {
-                                    re = new RegExp(`[${num}]`);
-                                    if (!re.test(s)) continue;
+                                    if (!reNum.test(s)) continue;
                                 }
                                 if (symUsed) {
-                                    re = new RegExp(`[${sym}]`);
-                                    if (!re.test(s)) continue;
+                                    if (!reSym.test(s)) continue;
                                 }
                                 break;
                         }
@@ -194,7 +195,7 @@
                     //console.log(s, bFlag, iCount);
                     arPw.push(s);
                 }
-                console.log(arPw);
+                //console.log(arPw);
                 gebi('pw_result').value = arPw.join('\n');
 
             }
@@ -273,7 +274,7 @@
 
 <body>
     <div class="title_pane">
-        <h3>Password Generator</h3>
+        <h3>Password String Generator</h3>
     </div>
     <div class="box_pane">
         <div class="setting">
@@ -309,6 +310,7 @@
                 <option value="8">8</option>
                 <option value="10" selected>10</option>
                 <option value="12">12</option>
+                <option value="12">16</option>
                 <option value="20">20</option>
             </select>
             How many? <select id="pw_num">
